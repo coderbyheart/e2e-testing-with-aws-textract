@@ -327,7 +327,7 @@ const text = lines.join("\n");
 
 # Raw text example
 
-![Raw text restult](./raw-text.png)
+![Raw text result](./raw-text.png)
 
 Visualized on AWS Console
 
