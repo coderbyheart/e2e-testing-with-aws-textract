@@ -173,33 +173,35 @@ _Very simplified:_
 - Invoices are created in Stripe at the end of each month
 - Stripe sends the PDF to the customer
 
+![Project Basics](./basic-architecture.svg)
+
 # The legal requirement
 
 Norwegian law
 ([Altinn](https://info.altinn.no/en/start-and-run-business/accounts-and-auditing/accounting/invoices-sales-documentation/))
 requires every sales document to carry:
 
-- Seller business name
-- Organization number with the `MVA` suffix
-- `Foretaksregisteret` (the Enterprise Register line)
-- Buyer name and address
-- Date of issue and payment deadline
-- A clear description of each service
-- Total price and remuneration
+- _Seller business name_
+- _Organization number with the `MVA` suffix_
+- _`Foretaksregisteret`_ (the Enterprise Register line)
+- _Buyer name and address_
+- _Date of issue and payment deadline_
+- _A clear description of each service_
+- _Total price and remuneration_
 
 # Finance department rules
 
-- **VAT only for Norwegian customers**
-- **Currency conversion note** — state the exchange rate, source (Norges Bank /
+- _VAT only for Norwegian customers_
+- _Currency conversion note_: state the exchange rate, source (Norges Bank /
   Deutsche Bundesbank) and quote date
-- **NOK VAT in foreign currency** — Norwegian customers billed in non-NOK still
-  get VAT reported in NOK at the effective Norges Bank rate
-- **"All prices in NOK."** footer on every NOK invoice (the `kr` symbol is
+- _NOK VAT in foreign currency_: Norwegian customers billed in non-NOK still get
+  VAT reported in NOK at the effective Norges Bank rate
+- _"All prices in NOK."_: footer on every NOK invoice (the `kr` symbol is
   ambiguous)
-- **Issue date** — last day of the billed month (post-paid) / first day
-  (pre-paid), **due 30 days** later
-- **Automatic-charge footer** — charged invoices state the payment term in lieu
-  of a due date
+- _Issue date_: last day of the billed month (post-paid) / first day (pre-paid),
+  _due 30 days_ later
+- _Automatic-charge footer_: charged invoices state the payment term in lieu of
+  a due date
 
 # The catch
 
@@ -210,6 +212,8 @@ Invoices are **rendered by Stripe**, not by us.
 - The final document contains additional information we pass along when creating
   the invoice
 
+![Project Basics](./basic-architecture.svg)
+
 # How to test?
 
 We cannot assert on rendered output with unit tests:
@@ -217,8 +221,8 @@ We cannot assert on rendered output with unit tests:
 - our implementation only does the API calls
 - multiple API calls needed to create an invoice (create customer, create
   invoice, ...)
-- API calls are not what the customer receives: they get a PDF!
-- Finance does not read unit tests!
+- API calls are not what the customer receives: **they get a PDF!**
+- **Finance does not read unit tests!**
 
 # E2E tests — the top of the testing pyramid
 
@@ -248,20 +252,20 @@ Run the **real pipeline** against the **real Stripe sandbox**:
 
 # Why OCR?
 
-Stripe's invoice PDFs embed fonts whose text layer maps punctuation (`-`, `(`,
-`:`) to `NUL`.
+- Stripe's invoice PDFs embed fonts whose text layer maps punctuation (`-`, `(`,
+  `:`) to `NUL`.
 
 ```text
 2026-06-01   →   2026\x0006\x0001
 ```
 
-Reading the text layer directly (e.g. with pdf.js) **mangles values**.
+- Reading the text layer directly (e.g. with pdf.js) **mangles values**.
 
-Amazon Textract OCRs the document — it reads the **glyphs as they are drawn** —
-and preserves punctuation, spaces and line breaks.
+- Amazon Textract OCRs the document — it reads the **glyphs as they are drawn**
+  — and preserves punctuation, spaces and line breaks.
 
-Also provides document structure (Layout, Forms, Tables, Queries, Signatures)
-but this is not needed for us.
+- Also provides document structure (Layout, Forms, Tables, Queries, Signatures)
+  but this is not needed for us.
 
 # 1. Upload the PDF
 
@@ -331,28 +335,26 @@ const text = lines.join("\n");
 
 Visualized on AWS Console
 
+# Layout example
+
+![Layout result](./layout-detection.png)
+
+Visualized on AWS Console
+
 # What gets asserted
-
-On the **Stripe invoice** (structured API):
-
-- Line items match description, quantity and cents
-- Currency and collection method
-- VAT declaration (tax rate, behavior, amount)
-- Issue date and 30-day due date
-- Metadata (organization id, service period)
 
 On the **rendered PDF** (OCR'd text):
 
-- Altinn seller / buyer / date requirements
-- NOK footer note presence (currency-dependent)
-- Currency conversion rate note
-- NOK VAT basis and amount for foreign-currency Norwegian sales
-- Per-project grouping headers
+- _Altinn seller / buyer / date requirements_
+- _NOK footer note presence (currency-dependent)_
+- _Currency conversion rate note_
+- _NOK VAT basis and amount for foreign-currency Norwegian sales_
+- _Per-project grouping headers_
 
 # CI strategy
 
-OCR tests are **slow** (Textract) and **cost money**, so they run only when a
-change can affect invoice rendering:
+OCR tests are **slow** (Textract) and **cost money**&sup1;, so they run only
+when a change can affect invoice rendering:
 
 ```yaml
 ocr-e2e:
@@ -371,6 +373,8 @@ ocr-e2e:
 
 Each spec runs as its **own job** in a `fail-fast`, `max-parallel: 1` matrix, so
 the first failure cancels the rest.
+
+<small>&sup1; 1 USD per 1.000 documents.</small>
 
 # CI pipeline
 
