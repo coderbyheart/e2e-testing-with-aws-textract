@@ -270,10 +270,10 @@ Run the **real pipeline** against the **real Stripe sandbox**:
 # 1. Upload the PDF
 
 ```typescript
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 
-const s3 = new S3Client();
-const key = `invoice-${randomUUID()}.pdf`;
+const s3 = new S3Client()
+const key = `invoice-${randomUUID()}.pdf`
 
 await s3.send(
   new PutObjectCommand({
@@ -282,7 +282,7 @@ await s3.send(
     Body: pdfBytes,
     ContentType: "application/pdf",
   }),
-);
+)
 ```
 
 # 2. Start text detection
@@ -291,9 +291,9 @@ await s3.send(
 import {
   StartDocumentTextDetectionCommand,
   TextractClient,
-} from "@aws-sdk/client-textract";
+} from "@aws-sdk/client-textract"
 
-const textract = new TextractClient();
+const textract = new TextractClient()
 
 const { JobId } = await textract.send(
   new StartDocumentTextDetectionCommand({
@@ -301,7 +301,7 @@ const { JobId } = await textract.send(
       S3Object: { Bucket: documentsBucketName, Name: key },
     },
   }),
-);
+)
 ```
 
 `StartDocumentTextDetection` kicks off an **asynchronous** job. It returns a
@@ -313,16 +313,16 @@ const { JobId } = await textract.send(
 const { JobStatus, Blocks } = await waitForIt(async () => {
   const result = await textract.send(
     new GetDocumentTextDetectionCommand({ JobId }),
-  );
-  if (result.JobStatus === "IN_PROGRESS") throw new Error("not done yet");
-  return result;
-}, 40); // ~3 minutes of backoff
+  )
+  if (result.JobStatus === "IN_PROGRESS") throw new Error("not done yet")
+  return result
+}, 40) // ~3 minutes of backoff
 
 const lines = (Blocks ?? [])
   .filter((b) => b.BlockType === "LINE" && b.Text)
-  .map((b) => b.Text);
+  .map((b) => b.Text)
 
-const text = lines.join("\n");
+const text = lines.join("\n")
 ```
 
 # Example

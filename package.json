@@ -2,40 +2,38 @@
   "name": "@coderbyheart/e2e-testing-with-aws-textract",
   "version": "0.0.0-development",
   "description": "Slides for my talk 'E2E testing with AWS Textract'",
+  "keywords": [
+    "slides",
+    "talk"
+  ],
+  "homepage": "https://github.com/coderbyheart/e2e-testing-with-aws-textract#readme",
+  "bugs": {
+    "url": "https://github.com/coderbyheart/e2e-testing-with-aws-textract/issues"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "Markus Tacker <Markus.Tacker@NordicSemi.no>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderbyheart/e2e-testing-with-aws-textract.git"
+  },
   "type": "module",
   "scripts": {
     "start": "npx live-server --port=8000 --no-browser ./public",
     "watch": "./.devcontainer/wa make build",
     "postinstall": "husky"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/coderbyheart/e2e-testing-with-aws-textract.git"
-  },
-  "keywords": [
-    "talk",
-    "slides"
-  ],
-  "author": "Markus Tacker <Markus.Tacker@NordicSemi.no>",
-  "license": "CC-BY-NC-SA-4.0",
-  "bugs": {
-    "url": "https://github.com/coderbyheart/e2e-testing-with-aws-textract/issues"
-  },
-  "homepage": "https://github.com/coderbyheart/e2e-testing-with-aws-textract#readme",
   "devDependencies": {
-    "@bifravst/prettier-config": "2.0.0",
     "@types/node": "26.6.0",
     "husky": "9.1.7",
     "lint-staged": "17.5.1",
     "live-server": "1.2.2",
-    "prettier": "3.9.6"
+    "oxfmt": "0.78.0"
   },
   "lint-staged": {
     "*.{yml,md,js,json}": [
-      "prettier --write"
+      "oxfmt --write"
     ]
   },
-  "prettier": "@bifravst/prettier-config",
   "engines": {
     "node": ">=24.18.1 <25",
     "npm": ">=12.0.2 <13"
